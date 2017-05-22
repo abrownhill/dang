@@ -1,0 +1,14 @@
+//-
+  .wrapper
+    p.hello Hello! my name is #{username}
+    img.user(src="profilePic.jpg" alt=`User ${username}`)
+    p.hello `Hello! my name is ${username}`
+    https://pugjs.org/language/comments.html
+    The dash at the start of the comment tells pug not to render it in the html
+    Leaving the dash off would make the comment appear on screen.
+
+extends layout
+
+block content
+  //- this is where the comments can go
+  p Hello :)
