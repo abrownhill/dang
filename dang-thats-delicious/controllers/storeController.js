@@ -1,3 +1,5 @@
+// exports.myMiddleware = (req,
+// res, next) => {
 // exports.myMiddleware = (req, res, next) => {
 //   req.name = req.query.username || 'wesbos';
 //   if (req.name === 'error') {
@@ -5,8 +7,72 @@
 //   };
 //   next();
 // };
+const mongoose = require('mongoose');
+const Store = mongoose.model('Store');
 
 exports.homePage = (req, res) => {
-console.log(req.name);
-  res.render('index');
+  console.log(req.name);
+  // req.flash('error', `Error: Something went wrong!`);
+  // req.flash('info', `Info: Something went wrong!`);
+  // req.flash('warning', `Warning: Something went wrong!`);
+  // req.flash('success', `Success: Something went wrong!`);
+  // req.flash('brian', `brian: Something went wrong!`);
+  // res.render('index');
+};
+
+exports.addStore = (req, res) => {
+  // Next line removed but showed how can pass data to the editStore page
+  // res.render('editStore', {title: 'Add Store'});
+  res.render('editStore');
+};
+
+exports.createStore = async (req, res) => {
+  // Handy Tip: Can Console Log the request.body
+  // console.log(req.body);
+
+  // Create the new store
+  // const store = new Store(req.body); // the original line
+  const store = await(new Store(req.body)).save();
+  // connect to DB and store it
+  // await store.save(); // This line removed when the store creation was merged into one line (above)
+  req.flash('success', `Sucessfully created ${store.name}. Care to leave a review?`);
+  // Added the slug but, it won't exist yet so, have to go and change the line where we define store (above)
+  res.redirect(`/store/${store.slug}`);
+  //  console.log("It worked");
+};
+
+exports.getStores = async (req, res) => {
+  // 1. Query the database for a list of all stores
+  // To do this need to make it aync
+  const stores = await Store.find();
+  console.log(stores);
+  res.render('stores', {title: 'Stores',  stores}); // This used the ES6 principle of omitting the variable name when it's the same as the value name.
+};
+
+exports.editStore = async (req, res) => {
+  // 1 find the store given the ID
+  const store = await Store.findOne({ _id: req.params.id });
+  // Wondered if the above line should be _id instead of id but works do guess not.
+  // res.json(store);
+  // if the above line is skipped and nothing rendered or returned it will look like the service has hung.
+
+  // 2. Confirm they are the owner of the store - this is on hold as need log-in functionality for this
+  // TODO
+
+  // 3. Render the edit for so the user can update their store.
+  res.render('editStore', {title: `Edit ${store.name}`, store });
+};
+
+exports.updateStore = async (req, res) => {
+  //  Find and udpate the store
+  const store = await Store.findOneAndUpdate({ _id: req.params.id}, req.body, {
+    new: true, // return the new store instead of the old one - this is because by default mongo returns the original 'thing' we find
+    runValidators: true // this forces the validators to be run e.g. to prevent creating a new object with a name then deleting that name after creation
+  }).exec();
+  req.flash('success', `Successfully updated <strong>${store.name}</strong>.  <a href="/stores/${store.slug}">View Store</a>`);
+  res.redirect(`/stores/${store._id}/edit`);
+  // note that findOneAndUpdate is a mongodb method
+
+  //  Redirect them to the store and tell them it worked
+
 };

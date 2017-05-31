@@ -1,0 +1,17 @@
+extends layout
+
+include mixins/_storeForm
+
+block content
+  .inner
+    //- un-comment the following line if you want to check the data pulled back
+    //- pre= h.dump(store)
+    //- -----------------------------
+    //- 2 ways to get variables to the screen
+    //- h2 #{title}
+    //- OR...
+    h2= title
+
+    //- Following line shows how to pass data into template from _storeForm.pug
+    //- +storeForm({name: 'tim hortons'})
+    +storeForm(store)

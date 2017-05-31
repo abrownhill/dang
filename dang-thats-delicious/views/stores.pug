@@ -1,0 +1,11 @@
+extends layout
+
+include mixins/_storeCard
+block content
+  .inner
+    h1= "Stores Page"
+    //- Next line commented as it would just display on screen
+    //- pre= h.dump(stores)
+    .stores
+      each store in stores
+        +storeCard(store)
