@@ -3,11 +3,22 @@ mixin storeForm(store = {})
   //- p IT works! #{store.name}
   form(action=`/add/${store._id || ''}` method="POST" enctpye="multipart/form-data" class="card")
     label(for="name") Name
-    input(type="type" name="name" value=store.name)
+    input(type="text" name="name" value=store.name)
     label(for="description") Description
     textarea(name="description")= store.description
-    - const choices = ['wifi', 'open late', 'family friendly', 'vegtarian', 'licensed']
+    //-  Address long and lat
+    label(for="address") Address
+    //- Next line has a nice way of only trying to display the value if it exists
+    //- if store.location isn't true then it won't try and get the address property of it - avoiding error(s)
+    input(type="text" id="address" name="location[address]" value=(store.location && store.location.address) )
+      //- the address being in square brackets has something to do with nesting data but couldn't explain it!
+      //- it's a feature of Express apparently
+    label(for="lng") Address Lgn
+    input(type="text" id="lng" name= "location[coordinates][0]" value=(store.location && store.location.coordinates[0]) required)
+    label(for="lat") Address Lat
+    input(type="text" id="lat" name= "location[coordinates][1]" value=(store.location && store.location.coordinates[1]) required)
 
+    - const choices = ['Wifi', 'Open Late', 'Family Friendly', 'Vegtarian', 'Licensed']
     //-  get the store tags or initialise an empty array - so we can use array methods
     - const tags = store.tags || []
     ul.tags
