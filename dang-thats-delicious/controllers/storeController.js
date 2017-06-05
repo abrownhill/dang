@@ -64,6 +64,8 @@ exports.editStore = async (req, res) => {
 };
 
 exports.updateStore = async (req, res) => {
+  // Set the location data to be a Point
+  req.body.location.type = 'Point';
   //  Find and udpate the store
   const store = await Store.findOneAndUpdate({ _id: req.params.id}, req.body, {
     new: true, // return the new store instead of the old one - this is because by default mongo returns the original 'thing' we find
