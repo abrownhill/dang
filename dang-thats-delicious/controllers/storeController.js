@@ -116,10 +116,19 @@ exports.updateStore = async(req, res) => {
     new: true, // return the new store instead of the old one - this is because by default mongo returns the original 'thing' we find
     runValidators: true // this forces the validators to be run e.g. to prevent creating a new object with a name then deleting that name after creation
   }).exec();
-  req.flash('success', `Successfully updated <strong>${store.name}</strong>.  <a href="/stores/${store.slug}">View Store</a>`);
-  res.redirect(`/stores/${store._id}/edit`);
+  req.flash('success', `Successfully updated <strong>${store.name}</strong>.  <a href="/store/${store.slug}">View Store</a>`);
+  res.redirect(`/store/${store._id}/edit`);
   // note that findOneAndUpdate is a mongodb method
 
   //  Redirect them to the store and tell them it worked
 
 };
+
+exports.getStoreBySlug = async (req, res, next) => {
+  // req.json(req.params);
+  const store = await Store.findOne({ slug: req.params.slug })
+  if (!store) return next();
+    // What the next does here is look at the router in app.js, it doesn't find What
+    // it needs to moves onto the next middleware - in our case 'errorHandlers.notFound'
+  res.render('store', { store, title: store.name })
+}

@@ -24,6 +24,9 @@ router.post('/add/:id',
 
 router.get('/stores/:id/edit', catchErrors(storeController.editStore))
 
+router.get('/store/:slug', catchErrors(storeController.getStoreBySlug));
+
+
 /////////////////////////////////////////////////////
 router.get('/adb', (req, res) => {
   // res.send('Hey! It works!');
