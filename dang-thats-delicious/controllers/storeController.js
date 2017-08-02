@@ -132,3 +132,9 @@ exports.getStoreBySlug = async (req, res, next) => {
     // it needs to moves onto the next middleware - in our case 'errorHandlers.notFound'
   res.render('store', { store, title: store.name })
 }
+
+exports.getStoreByTag = async (req, res) => {
+  const tags = await Store.getTagsList();
+  const tag = req.params.tag;
+  res.render('tag', {tags: tags, title: 'Tags', tag });
+}

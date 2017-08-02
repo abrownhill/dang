@@ -55,4 +55,17 @@ storeSchema.pre('save', async function(next) {
   next();
 });
 
+storeSchema.statics.getTagsList = function() {
+  // So this needs to be a proper function and not an ES2015 function as needs to be bound to this.
+  return this.aggregate([
+     { $unwind: '$tags'},
+     { $group: { _id: '$tags', count: { $sum: 1} } },
+     { $sort: { count: -1} }
+  ]);
+  // So this pipes the data through various stages:
+  // 1. Unwind duplicates when there is more than 1 tag per store, get each store with only 1 tag
+  // 2. Group the stores by tag and count then (sum) adding 1 each time
+  // 3. Order them in descending numerical order
+}
+
 module.exports = mongoose.model('Store', storeSchema);
