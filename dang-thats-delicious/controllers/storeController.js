@@ -9,9 +9,26 @@
 // };
 const mongoose = require('mongoose');
 const Store = mongoose.model('Store');
+const multer = require('multer');
+const jimp = require('jimp');
+const uuid = require('uuid');
+
+const multerOptions = {
+  storage: multer.memoryStorage(),
+  fileFilter(req, file, next) {
+    const isPhoto = file.mimetype.startsWith('image/');
+    if (isPhoto) {
+      next(null, true);
+    } else {
+      next({
+        message: 'That filetype isn\'t allowed!'
+      }, false);
+    }
+  }
+};
 
 exports.homePage = (req, res) => {
-  console.log(req.name);
+  // console.log(req.name);
   // req.flash('error', `Error: Something went wrong!`);
   // req.flash('info', `Info: Something went wrong!`);
   // req.flash('warning', `Warning: Something went wrong!`);
@@ -26,13 +43,31 @@ exports.addStore = (req, res) => {
   res.render('editStore');
 };
 
-exports.createStore = async (req, res) => {
+exports.upload = multer(multerOptions).single('photo');
+
+exports.resize = async(req, res, next) => {
+  //  check if there is no new file to resize
+  if (!req.file){
+    next(); // skip to the next middleware
+    return;
+  }
+  const extension = req.file.mimetype.split('/')[1];
+  req.body.photo = `${uuid.v4()}.${extension}`; // this creates a new filename with the extension.
+  // now we resize
+  const photo = await jimp.read(req.file.buffer);
+  await photo.resize(800, jimp.AUTO);
+  await photo.write(`./public/uploads/${req.body.photo}`);
+  // once we've written the photo to our filesystem, keep going!
+  next();
+};
+
+exports.createStore = async(req, res) => {
   // Handy Tip: Can Console Log the request.body
   // console.log(req.body);
 
   // Create the new store
   // const store = new Store(req.body); // the original line
-  const store = await(new Store(req.body)).save();
+  const store = await (new Store(req.body)).save();
   // connect to DB and store it
   // await store.save(); // This line removed when the store creation was merged into one line (above)
   req.flash('success', `Sucessfully created ${store.name}. Care to leave a review?`);
@@ -41,17 +76,22 @@ exports.createStore = async (req, res) => {
   //  console.log("It worked");
 };
 
-exports.getStores = async (req, res) => {
+exports.getStores = async(req, res) => {
   // 1. Query the database for a list of all stores
   // To do this need to make it aync
   const stores = await Store.find();
-  console.log(stores);
-  res.render('stores', {title: 'Stores',  stores}); // This used the ES6 principle of omitting the variable name when it's the same as the value name.
+  // console.log(stores);
+  res.render('stores', {
+    title: 'Stores',
+    stores
+  }); // This used the ES6 principle of omitting the variable name when it's the same as the value name.
 };
 
-exports.editStore = async (req, res) => {
+exports.editStore = async(req, res) => {
   // 1 find the store given the ID
-  const store = await Store.findOne({ _id: req.params.id });
+  const store = await Store.findOne({
+    _id: req.params.id
+  });
   // Wondered if the above line should be _id instead of id but works do guess not.
   // res.json(store);
   // if the above line is skipped and nothing rendered or returned it will look like the service has hung.
@@ -60,14 +100,19 @@ exports.editStore = async (req, res) => {
   // TODO
 
   // 3. Render the edit for so the user can update their store.
-  res.render('editStore', {title: `Edit ${store.name}`, store });
+  res.render('editStore', {
+    title: `Edit ${store.name}`,
+    store
+  });
 };
 
-exports.updateStore = async (req, res) => {
+exports.updateStore = async(req, res) => {
   // Set the location data to be a Point
   req.body.location.type = 'Point';
   //  Find and udpate the store
-  const store = await Store.findOneAndUpdate({ _id: req.params.id}, req.body, {
+  const store = await Store.findOneAndUpdate({
+    _id: req.params.id
+  }, req.body, {
     new: true, // return the new store instead of the old one - this is because by default mongo returns the original 'thing' we find
     runValidators: true // this forces the validators to be run e.g. to prevent creating a new object with a name then deleting that name after creation
   }).exec();
