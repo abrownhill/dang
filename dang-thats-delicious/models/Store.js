@@ -35,7 +35,7 @@ const storeSchema = new mongoose.Schema({
   photo: String
 });
 
-storeSchema.pre('save', function(next) {
+storeSchema.pre('save', async function(next) {
   if(!this.isModified('name')){
     next(); // skip it
     return; //stop this function from running
@@ -43,6 +43,15 @@ storeSchema.pre('save', function(next) {
   // Improvement for the future will be to change this as it won't deal with
   // stores without unique names.
   this.slug = slug(this.name);
+  // find other stores that have a slug of wes, wes-1, wes-2
+  // the 'i' means it is case-insensitive
+  const slugRegEx = new RegExp(`^(${this.slug})((-[0-9]*$)?)$`, 'i')
+  // Can't use the store here as it's not created yet so need to use the constructor
+  const storesWithSlug = await this.constructor.find({ slug: slugRegEx });
+  // now look if we found anything - if we did add a number to the end of it
+  if (storesWithSlug.length) {
+    this.slug = `${ this.slug }-${storesWithSlug.length + 1}`
+  }
   next();
 });
 
