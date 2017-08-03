@@ -134,7 +134,21 @@ exports.getStoreBySlug = async (req, res, next) => {
 }
 
 exports.getStoreByTag = async (req, res) => {
-  const tags = await Store.getTagsList();
   const tag = req.params.tag;
-  res.render('tag', {tags: tags, title: 'Tags', tag });
+  const tagQuery = tag || { $exists: true };
+  const tagsPromise = Store.getTagsList();
+  // Next just gets the ones where the tag exists in the tags array - just does it
+  const storesPromise = Store.find({ tags: tagQuery });
+  // WB points out could add another await here but, they'd be run in sequence whereas we want parallel
+
+  // Next bit makes use of ES6 features...could do the below to get and split but, can actually do the uncommented line
+  // const result = await Promise.all([tagsPromise, storesPromise]);
+  // var tags = result[0];
+  // var stores = result[1];
+  const [tags, stores] = await Promise.all([tagsPromise, storesPromise]);
+  res.render('tag', {tags, title: 'Tags', tag, stores });
+
+  // This all works pretty nicely but good improvements would be:
+  //   1. Remove all tag filters
+  //   2. Allow multiple selection e.g. 'open late' && 'wifi'
 }

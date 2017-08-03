@@ -27,7 +27,7 @@ router.get('/stores/:id/edit', catchErrors(storeController.editStore))
 router.get('/store/:slug', catchErrors(storeController.getStoreBySlug));
 
 router.get('/tags', catchErrors(storeController.getStoreByTag));
-// next daals with a single tag but the ':tag' could be replaced by ':tag*?' and all done on a single line
+// next deals with a single tag but the ':tag' could be replaced by ':tag*?' and all done on a single line
 // This wasn't shown to work in the videos so test it.  Uses an optional regexp.
 router.get('/tags/:tag', catchErrors(storeController.getStoreByTag));
 
