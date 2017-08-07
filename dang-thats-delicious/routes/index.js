@@ -1,12 +1,10 @@
-const express = require('express');
+ const express = require('express');
 const router = express.Router();
 const storeController = require('../controllers/storeController');
-
-// This is using object destructuring
+const userController = require('../controllers/userController');
+const authController = require('../controllers/authController');
 const { catchErrors } = require('../handlers/errorHandlers');
 
-// Do work here
-// router.get('/', storeController.myMiddleware, storeController.homePage);
 router.get('/', catchErrors(storeController.getStores));
 router.get('/stores', catchErrors(storeController.getStores));
 router.get('/add', storeController.addStore);
@@ -30,6 +28,21 @@ router.get('/tags', catchErrors(storeController.getStoreByTag));
 // next deals with a single tag but the ':tag' could be replaced by ':tag*?' and all done on a single line
 // This wasn't shown to work in the videos so test it.  Uses an optional regexp.
 router.get('/tags/:tag', catchErrors(storeController.getStoreByTag));
+
+router.get('/login', catchErrors(userController.loginForm));
+
+router.get('/register', userController.registerForm);
+
+// 1. Validate the registration data
+// 2. Register the user
+// 3, We need to log them in
+router.post('/register',
+  userController.validateRegister,
+  userController.register,
+  authController.login
+);
+
+
 
 /////////////////////////////////////////////////////
 router.get('/adb', (req, res) => {

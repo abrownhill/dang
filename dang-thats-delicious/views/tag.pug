@@ -1,0 +1,22 @@
+extends layout
+
+include mixins/_storeCard
+
+block content
+  .inner
+    //- if tag
+    //-   h2 #{ tag }
+    //- else
+    //-   h2 Select a tag to filter stores
+    //-  Above was me doing it then Wes showed the next line!
+    h2 #{tag || 'Tags'}
+    ul.tags
+      each t in tags
+        li.tag
+          a.tag__link(href=`/tags/${t._id }` class= (t._id === tag ? 'tag__link--active' : ''))
+            span.tag__text= t._id
+            span.tag__count= t.count
+    //- pre=h.dump(stores)
+    .stores
+      each store in stores
+        +storeCard(store)
