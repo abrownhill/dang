@@ -25,6 +25,11 @@ const userSchema = new Schema({
   }
 });
 
+userSchema.virtual('gravatar').get(function() {
+  const hash = mnd5(this.email);
+  return `https://gravatar.com/avatar/${hash}.s=200`;
+});
+
 // This tells something to use the email as the username
 userSchema.plugin(passportLocalMongoose, { usernameField: 'email' });
 // mongodbErrorHandler converts rather unfriendly error messages into friendly error messages
