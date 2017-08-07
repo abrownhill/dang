@@ -26,7 +26,7 @@ const userSchema = new Schema({
 });
 
 userSchema.virtual('gravatar').get(function() {
-  const hash = mnd5(this.email);
+  const hash = md5(this.email);
   return `https://gravatar.com/avatar/${hash}.s=200`;
 });
 
