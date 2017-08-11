@@ -90,7 +90,7 @@ exports.getStores = async(req, res) => {
 exports.editStore = async(req, res) => {
   // 1 find the store given the ID
   const store = await Store.findOne({
-    _id: req.params._id
+    _id: req.params.id
   });
   // Wondered if the above line should be _id instead of id but works do guess not.
   // res.json(store);
